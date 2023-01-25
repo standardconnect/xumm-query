@@ -1,6 +1,6 @@
-<p align="center">
+<div align="center">
   <img src="https://github.com/standardconnect/xumm-query/blob/main/media/xumm-query.png" width="128" alt="" />
-</p>
+</div>
 
 <h1 align="center">xumm-query</h1>
 
