@@ -1,8 +1,5 @@
 import { defaultLogger, Logger } from './logger';
-
-export interface PayloadCache {
-  stale: Number;
-}
+import { Payload } from './payload';
 
 export interface PayloadCacheConfig {
   onError?: (error: unknown, payload: Payload<unknown, unknown, unknown>) => void;
@@ -15,26 +12,24 @@ export const DefaultPayloadCacheConfig: PayloadCacheConfig = {
 };
 
 export interface DefaultOptions {}
-
 export const defaultPayloadOptions = {};
 
-export class PayloadCache<T> {
-  private cache: PayloadCache;
+export class PayloadCache {
   private logger: Logger;
   private options: DefaultOptions;
   private mountCount: number;
-  private xumm: Xumm;
-  private key: string;
-  private payloads: T[];
+  private payloads: [];
   private payloadsMap: DefaultOptions;
+  private config: PayloadCacheConfig;
 
   constructor(config?: PayloadCacheConfig) {
     this.options = defaultPayloadOptions;
     this.logger = defaultLogger;
-    this.mount();
     this.config = config || DefaultPayloadCacheConfig;
     this.payloads = [];
     this.payloadsMap = {};
+
+    this.mount();
   }
 
   public mount() {
