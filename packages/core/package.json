@@ -1,0 +1,13 @@
+{
+  "name": "core",
+  "version": "0.0.1-beta",
+  "main": "./dist/src/index.js",
+  "author": "interc0der",
+  "license": "MIT",
+  "dependencies": {
+    "xumm": "^1.1.13"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.3"
+  }
+}
