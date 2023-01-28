@@ -1,8 +1,9 @@
 import { Xumm } from 'xumm';
 import type { Logger } from './logger';
 import { defaultLogger } from './logger';
+import xumm from 'xumm';
 
-import { XummCache } from './payloadCache';
+import { PayloadCache } from './payloadCache';
 
 export interface ClientOpts {
   key: string;
@@ -19,7 +20,7 @@ export interface DefaultOptions {
 
 export interface ClientConfig {
   xumm?: Xumm;
-  cache?: XummCache;
+  cache?: PayloadCache;
   logger?: Logger;
   defaultOptions?: DefaultOptions;
 }
@@ -32,9 +33,9 @@ export const defaultOptions: DefaultOptions = {
 };
 
 export class Client {
-  private cache: XummCache;
+  private cache: PayloadCache;
   private logger: Logger;
-  private mountCount: number;
+  private mountCount: number = 0;
   private xumm: Xumm;
   private key: string;
   private secret?: string;
@@ -45,7 +46,7 @@ export class Client {
     this.key = key;
     this.secret = secret;
     this.logger = config.logger || defaultLogger;
-    this.cache = config.cache || new XummCache();
+    this.cache = config.cache || new PayloadCache();
     this.xumm = config.xumm || new Xumm(this.key, this.secret);
     this.mount();
   }

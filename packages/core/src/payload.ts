@@ -6,14 +6,18 @@ export interface XummCache {
   stale: Number;
 }
 
-interface PayloadConfig<TQueryFnData, TError, TData, TQueryKey extends QueryKey = QueryKey> {
+export interface PayloadOptions<TPayloadFnData, TError, TData, TQueryKey> {
+  stale: Number;
+}
+
+interface PayloadConfig<TPayloadFnData, TError, TData, TQueryKey extends PayloadKey = QueryKey> {
   cache: PayloadCache;
   queryKey: TQueryKey;
   queryHash: string;
   logger?: Logger;
-  options?: QueryOptions<TQueryFnData, TError, TData, TQueryKey>;
-  defaultOptions?: QueryOptions<TQueryFnData, TError, TData, TQueryKey>;
-  state?: QueryState<TData, TError>;
+  options?: PayloadOptions<TPayloadFnData, TError, TData, TQueryKey>;
+  defaultOptions?: PayloadOptions<TPayloadFnData, TError, TData, TQueryKey>;
+  state?: PayloadState<TData, TError>;
 }
 
 export type PayloadStatus = 'Error' | 'Success';
@@ -32,13 +36,14 @@ export interface PayloadState<TData = unknown, TError = unknown> {
   status: PayloadStatus;
   payloadStatus: PayloadStatus;
 }
+
 export class Payload<
   TQueryFnData = unknown,
   TError = unknown,
   TData = TQueryFnData,
   TPayloadKey extends PayloadKey = PayloadKey
 > {
-  queryKey: TPayloadKey;
+  payloadKey: TPayloadKey;
   queryHash: string;
   options!: QueryOptions<TQueryFnData, TError, TData, TPayloadKey>;
   initialState: PayloadState<TData, TError>;

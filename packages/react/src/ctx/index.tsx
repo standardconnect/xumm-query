@@ -1,22 +1,18 @@
 import React, { useState, createContext, useContext, ReactNode, useEffect } from 'react';
-import bibble from 'bibble';
-import xumm
 
-import { IContextOptions } from 'types/context';
+import { IContextOptions } from '../../types/context';
+import { Client } from '@xumm-query/core';
 
 declare global {
   interface Window {
-    XummClientContext?: React.Context<QueryClient | undefined>;
+    XummClientContext?: React.Context<Client>;
   }
 }
 
 const XummContextSharing = React.createContext<boolean>(false);
-const XummClientContext = createContext({} as IContextOptions);
+const XummClientContext = createContext({} as Client);
 
-const getXummClient = (
-  context: React.Context<QueryClient | undefined> | undefined,
-  contextSharing: boolean
-) => {
+const getXummClient = (context: React.Context<Client> | undefined, contextSharing: boolean) => {
   if (context) {
     return context;
   }
@@ -31,28 +27,30 @@ const getXummClient = (
   return XummClientContext;
 };
 
-interface ContextBaseProps {
-  client: QueryClient;
+export interface ContextBaseProps {
   key: string;
   children: ReactNode;
 }
 
-type ClientContextProps = {
+export type ClientContextProps = {
   context?: never;
   contextSharing: boolean;
 } & ContextBaseProps;
 
 const XummClientProvider: React.FC<ClientContextProps> = (props) => {
-  useEffect(() => {
-    props.client.mount(props.key);
+  const key = props.key;
+  const [client, _setClient] = useState<Client>(new Client({ key }));
+
+  /*   useEffect(() => {
+    setClient(new Client({ key }));
     return () => {
-      props.client.unmount(props.key);
+      if (client) client.unmount();
     };
-  }, [props.client]);
+  }, [client]); */
 
   return (
     <XummContextSharing.Provider value={!props.context && props.contextSharing}>
-      <XummClientContext.Provider value={props.client}>{props.children}</XummClientContext.Provider>
+      <XummClientContext.Provider value={client}>{props.children}</XummClientContext.Provider>
     </XummContextSharing.Provider>
   );
 };

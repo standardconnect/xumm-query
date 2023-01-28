@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction } from 'react';
-import { Client } from 'xrpl';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Client } from '@xumm-query/core';
 
 interface Query {
   isLoading: boolean;
@@ -10,7 +10,7 @@ interface Query {
   isError: boolean;
 }
 
-export interface IStoreContextProps {
+export interface IContextProps {
   data: [any, Dispatch<SetStateAction<any>>];
   jwt: [string | undefined, Dispatch<SetStateAction<string | undefined>>];
   wallet: readonly [undefined | string, Dispatch<SetStateAction<undefined | string>>];
@@ -26,4 +26,8 @@ export interface IStoreContextProps {
   validated: [boolean, Dispatch<SetStateAction<boolean>>];
   init: (oneTimeToken: string) => void;
   signout: () => void;
+}
+
+export interface IContextOptions {
+  context?: React.Context<Client>;
 }
