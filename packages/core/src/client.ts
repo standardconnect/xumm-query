@@ -3,7 +3,7 @@ import type { Logger } from './logger';
 import { defaultLogger } from './logger';
 import xumm from 'xumm';
 
-import { PayloadCache } from './payloadCache';
+import { PayloadCache } from './cache';
 
 export interface ClientOpts {
   key: string;

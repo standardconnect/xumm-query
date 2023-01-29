@@ -1,6 +1,6 @@
 import { throws } from 'assert';
 import { Logger } from './logger';
-import { PayloadCache } from './payloadCache';
+import { PayloadCache } from './cache';
 import { PayloadKey } from './types';
 
 export interface XummCache {

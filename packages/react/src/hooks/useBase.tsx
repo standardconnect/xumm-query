@@ -1,27 +1,17 @@
 import * as React from 'react';
-import { useSyncExternalStore } from './useSyncExternalStore';
 
-import type { QueryKey, QueryObserver } from '@tanstack/query-core';
-import { notifyManager } from '@tanstack/query-core';
-import { useQueryErrorResetBoundary } from './QueryErrorResetBoundary';
-import { useQueryClient } from '../ctx/index';
-import type { UseBaseQueryOptions } from './types';
-import { useIsRestoring } from './isRestoring';
-import {
-  ensurePreventErrorBoundaryRetry,
-  getHasError,
-  useClearResetErrorBoundary,
-} from './errorBoundaryUtils';
+import type { PayloadKey, PayloadObserver } from '@xumm-query/core';
+import { useXummClient } from '../ctx/index';
+import type { UseBasePayloadOptions } from './types';
 import { ensureStaleTime, shouldSuspend, fetchOptimistic } from './suspense';
 
-export function useBaseQuery<TQueryFnData, TError, TData, TQueryData, TQueryKey extends QueryKey>(
-  options: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
-  Observer: typeof QueryObserver
+export function useBase<TQueryFnData, TError, TData, TQueryData, TQueryKey extends QueryKey>(
+  options: UseBasePayloadOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>,
+  Observer: typeof PayloadObserver
 ) {
-  const queryClient = useQueryClient({ context: options.context });
+  const queryClient = useXummClient({ context: options.context });
   const isRestoring = useIsRestoring();
-  const errorResetBoundary = useQueryErrorResetBoundary();
-  const defaultedOptions = queryClient.defaultQueryOptions(options);
+  const defaultedOptions = queryClient.defaultPayloadOptions(options);
 
   // Make sure results are optimistically set in fetching state before subscribing or updating options
   defaultedOptions._optimisticResults = isRestoring ? 'isRestoring' : 'optimistic';
@@ -40,9 +30,6 @@ export function useBaseQuery<TQueryFnData, TError, TData, TQueryData, TQueryKey 
   }
 
   ensureStaleTime(defaultedOptions);
-  ensurePreventErrorBoundaryRetry(defaultedOptions, errorResetBoundary);
-
-  useClearResetErrorBoundary(errorResetBoundary);
 
   const [observer] = React.useState(
     () =>
@@ -53,16 +40,6 @@ export function useBaseQuery<TQueryFnData, TError, TData, TQueryData, TQueryKey 
   );
 
   const result = observer.getOptimisticResult(defaultedOptions);
-
-  useSyncExternalStore(
-    React.useCallback(
-      (onStoreChange) =>
-        isRestoring ? () => undefined : observer.subscribe(notifyManager.batchCalls(onStoreChange)),
-      [observer, isRestoring]
-    ),
-    () => observer.getCurrentResult(),
-    () => observer.getCurrentResult()
-  );
 
   React.useEffect(() => {
     // Do not notify on updates because of changes in the options because

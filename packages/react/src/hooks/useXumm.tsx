@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useXummContext } from '../ctx';
+import useXummContext from '../ctx';
 import { v4 as uuid } from 'uuid';
 
 interface UseXummOpts {
@@ -7,138 +7,134 @@ interface UseXummOpts {
   payload: any;
 }
 
-export const useXumm = (opts: UseXummOpts) => {
-  const id = uuid();
-  const XummContext = useXummContext();
-
-  useEffect(() => {}, []);
-
-  return [value, setValue] as const;
-};
-
-import type { QueryFunction, QueryKey } from '@tanstack/query-core';
-import { parseQueryArgs, QueryObserver } from '@tanstack/query-core';
-import type { DefinedUseQueryResult, UseQueryOptions, UseQueryResult } from './types';
-import { useBaseQuery } from './useBaseQuery';
+import type { PayloadFunction, PayloadKey } from '@xumm-query/core';
+import { parsePayloadArgs, PayloadObserver } from '@xumm-query/core';
+import type { DefinedUseQueryResult, UsePayloadOptions, UsePayloadResult } from './types';
+import { useBase } from './useBase';
 
 // HOOK
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  options: Omit<UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>, 'initialData'> & {
+  options: Omit<UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>, 'initialData'> & {
     initialData?: () => undefined;
   }
-): UseQueryResult<TData, TError>;
+): UsePayloadResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  options: Omit<UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>, 'initialData'> & {
-    initialData: TQueryFnData | (() => TQueryFnData);
+  options: Omit<UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>, 'initialData'> & {
+    initialData: TPayloadFnData | (() => TPayloadFnData);
   }
 ): DefinedUseQueryResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
->(options: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>): UseQueryResult<TData, TError>;
-
-export function useQuery<
-  TQueryFnData = unknown,
-  TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  queryKey: TQueryKey,
+  options: UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>
+): UsePayloadResult<TData, TError>;
+
+export function useXumm<
+  TPayloadFnData = unknown,
+  TError = unknown,
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
+>(
+  payloadKey: TPayloadKey,
   options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'initialData'
+    UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>,
+    'payloadKey' | 'initialData'
   > & { initialData?: () => undefined }
-): UseQueryResult<TData, TError>;
+): UsePayloadResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  queryKey: TQueryKey,
+  payloadKey: TPayloadKey,
   options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'initialData'
-  > & { initialData: TQueryFnData | (() => TQueryFnData) }
+    UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>,
+    'payloadKey' | 'initialData'
+  > & { initialData: TPayloadFnData | (() => TPayloadFnData) }
 ): DefinedUseQueryResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  queryKey: TQueryKey,
-  options?: Omit<UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>, 'queryKey'>
-): UseQueryResult<TData, TError>;
+  payloadKey: TPayloadKey,
+  options?: Omit<UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>, 'payloadKey'>
+): UsePayloadResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  queryKey: TQueryKey,
-  queryFn: QueryFunction<TQueryFnData, TQueryKey>,
+  payloadKey: TPayloadKey,
+  payloadFn: PayloadFunction<TPayloadFnData, TPayloadKey>,
   options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'queryFn' | 'initialData'
+    UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>,
+    'payloadKey' | 'payloadFn' | 'initialData'
   > & { initialData?: () => undefined }
-): UseQueryResult<TData, TError>;
+): UsePayloadResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  queryKey: TQueryKey,
-  queryFn: QueryFunction<TQueryFnData, TQueryKey>,
+  payloadKey: TPayloadKey,
+  payloadFn: PayloadFunction<TPayloadFnData, TPayloadKey>,
   options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'queryFn' | 'initialData'
-  > & { initialData: TQueryFnData | (() => TQueryFnData) }
+    UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>,
+    'payloadKey' | 'payloadFn' | 'initialData'
+  > & { initialData: TPayloadFnData | (() => TPayloadFnData) }
 ): DefinedUseQueryResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData = unknown,
+export function useXumm<
+  TPayloadFnData = unknown,
   TError = unknown,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  queryKey: TQueryKey,
-  queryFn: QueryFunction<TQueryFnData, TQueryKey>,
-  options?: Omit<UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>, 'queryKey' | 'queryFn'>
-): UseQueryResult<TData, TError>;
+  payloadKey: TPayloadKey,
+  payloadFn: PayloadFunction<TPayloadFnData, TPayloadKey>,
+  options?: Omit<
+    UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>,
+    'payloadKey' | 'payloadFn'
+  >
+): UsePayloadResult<TData, TError>;
 
-export function useQuery<
-  TQueryFnData,
+export function useXumm<
+  TPayloadFnData,
   TError,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
+  TData = TPayloadFnData,
+  TPayloadKey extends PayloadKey = PayloadKey
 >(
-  arg1: TQueryKey | UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+  arg1: TPayloadKey | UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>,
   arg2?:
-    | QueryFunction<TQueryFnData, TQueryKey>
-    | UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-  arg3?: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-): UseQueryResult<TData, TError> {
-  const parsedOptions = parseQueryArgs(arg1, arg2, arg3);
-  return useBaseQuery(parsedOptions, QueryObserver);
+    | PayloadFunction<TPayloadFnData, TPayloadKey>
+    | UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>,
+  arg3?: UsePayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>
+): UsePayloadResult<TData, TError> {
+  const parsedOptions = parsePayloadArgs(arg1, arg2, arg3);
+  return useBase(parsedOptions, PayloadObserver);
 }
