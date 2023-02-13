@@ -2,7 +2,7 @@
   <img src="https://github.com/standardconnect/xumm-query/blob/main/media/xumm-query.png" width="128" alt="" />
 </div>
 
-<h1 align="center">xumm-query</h1>
+<h2 align="center">xumm-query</h2>
 
 <p align="center">
 A query-style tool for making and handling asynchronous XUMM payloads
