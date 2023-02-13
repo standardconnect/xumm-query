@@ -7,20 +7,24 @@ export interface PayloadCacheConfig {
 }
 
 export const DefaultPayloadCacheConfig: PayloadCacheConfig = {
-  onError: (error: unknown, payload: Payload<unknown, unknown, unknown>) => {},
-  onSuccess: (error: unknown, payload: Payload<unknown, unknown, unknown>) => {},
+  onError: (error: unknown, payload: Payload<unknown, unknown, unknown>) => {
+    defaultLogger.error(error, payload);
+  },
+  onSuccess: (_error: unknown, payload: Payload<unknown, unknown, unknown>) => {
+    defaultLogger.log(payload);
+  },
 };
 
 export interface DefaultOptions {}
 export const defaultPayloadOptions = {};
 
 export class PayloadCache {
-  private logger: Logger;
-  private options: DefaultOptions;
+  public logger: Logger;
+  public options: DefaultOptions;
   private mountCount: number;
-  private payloads: [];
-  private payloadsMap: DefaultOptions;
-  private config: PayloadCacheConfig;
+  public payloads: [];
+  public payloadsMap: DefaultOptions;
+  public config: PayloadCacheConfig;
 
   constructor(config?: PayloadCacheConfig) {
     this.options = defaultPayloadOptions;

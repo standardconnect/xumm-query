@@ -1,4 +1,3 @@
-import { throws } from 'assert';
 import { Logger } from './logger';
 import { PayloadCache } from './cache';
 import { PayloadKey } from './types';
@@ -13,62 +12,28 @@ export type PayloadFunction<T = unknown, TPayloadKey extends PayloadKey = Payloa
   context: PayloadFunctionContext<TPayloadKey>
 ) => T | Promise<T>;
 
-export interface QueryFunctionContext<
+export interface PayloadFunctionContext<
   TPayloadKey extends PayloadKey = PayloadKey,
   TPageParam = any
 > {
   queryKey: TPayloadKey;
   signal?: AbortSignal;
   pageParam?: TPageParam;
-  meta: PayloadMeta | undefined;
+  meta: undefined;
 }
 
 export interface PayloadOptions<
   TPayloadFnData = unknown,
-  TError = unknown,
   TData = TPayloadFnData,
   TPayloadKey extends PayloadKey = PayloadKey
 > {
-  /**
-   * If `false`, failed queries will not retry by default.
-   * If `true`, failed queries will retry infinitely., failureCount: num
-   * If set to an integer number, e.g. 3, failed queries will retry until the failed query count meets that number.
-   * If set to a function `(failureCount, error) => boolean` failed queries will retry until the function returns false.
-   */
-  retry?: RetryValue<TError>;
-  retryDelay?: RetryDelayValue<TError>;
   networkMode?: NetworkMode;
   cacheTime?: number;
   isDataEqual?: (oldData: TData | undefined, newData: TData) => boolean;
   queryFn?: PayloadFunction<TPayloadFnData, TPayloadKey>;
-  queryHash?: string;
   payloadKey?: TPayloadKey;
-  queryKeyHashFn?: PayloadKeyHashFunction<TPayloadKey>;
-  initialData?: TData | InitialDataFunction<TData>;
+  initialData?: TData;
   initialDataUpdatedAt?: number | (() => number | undefined);
-  behavior?: PayloadBehavior<TPayloadFnData, TError, TData>;
-  /**
-   * Set this to `false` to disable structural sharing between query results.
-   * Set this to a function which accepts the old and new data and returns resolved data of the same type to implement custom structural sharing logic.
-   * Defaults to `true`.
-   */
-  structuralSharing?: boolean | ((oldData: TData | undefined, newData: TData) => TData);
-  /**
-   * This function can be set to automatically get the previous cursor for infinite queries.
-   * The result will also be used to determine the value of `hasPreviousPage`.
-   */
-  getPreviousPageParam?: GetPreviousPageParamFunction<TQueryFnData>;
-  /**
-   * This function can be set to automatically get the next cursor for infinite queries.
-   * The result will also be used to determine the value of `hasNextPage`.
-   */
-  getNextPageParam?: GetNextPageParamFunction<TQueryFnData>;
-  _defaulted?: boolean;
-  /**
-   * Additional payload to be stored on each query.
-   * Use this property to pass information that can be used in other places.
-   */
-  meta?: QueryMeta;
 }
 
 interface PayloadConfig<TPayloadFnData, TError, TData, TQueryKey extends PayloadKey = PayloadKey> {
@@ -76,8 +41,8 @@ interface PayloadConfig<TPayloadFnData, TError, TData, TQueryKey extends Payload
   payloadKey: TPayloadKey;
   queryHash: string;
   logger?: Logger;
-  options?: PayloadOptions<TPayloadFnData, TError, TData, TQueryKey>;
-  defaultOptions?: PayloadOptions<TPayloadFnData, TError, TData, TQueryKey>;
+  options?: PayloadOptions<TPayloadFnData, TData, TQueryKey>;
+  defaultOptions?: PayloadOptions<TPayloadFnData, TData, TQueryKey>;
   state?: PayloadState<TData, TError>;
 }
 
@@ -177,7 +142,6 @@ export class Payload<
   private promise?: Promise<TData>;
   private observers: PayloadObserver<any, any, any, any, any>[];
   private defaultOptions?: PayloadOptions<TPayloadFnData, TError, TData, TPayloadKey>;
-  private abortSignalConsumed: boolean;
 
   constructor(config: PayloadConfig<TPayloadFnData, TError, TData, TPayloadKey>) {
     this.abortSignalConsumed = false;
@@ -209,4 +173,83 @@ export class Payload<
   private updateCacheTime(_time?: number) {
     this.cache;
   }
+
+  private listenForExpiration = async (url: string) => {
+    let ws = await this.observers.client.openWebSocket(url);
+    ws.onmessage = (event) => {
+      let resp = JSON.parse(event.data);
+      if (resp.signed) ws.close();
+      if (resp.expires_in_seconds) ctx.expire[1](resp.expires_in_seconds);
+    };
+  };
+
+  private listenForScan = async (url: string) => {
+    console.log('listening for scan...');
+    let scanned = await xumm.scannedWebSocket(url);
+    if (scanned instanceof Error) return ctx.error[1](true);
+    ctx.state[1]({ state: 'scanned', response: scanned });
+    ctx.scanned[1](true);
+  };
+
+  private listenForSign = async (url: string, ctx: IStoreContextProps) => {
+    console.log('listening for sign...');
+    let signed: any = await xumm.signedWebSocket(url);
+    if (signed instanceof Error) return ctx.error[1](true);
+
+    if (!ctx.xummData[0]) return;
+    const payload_meta = await xumm.getMetadata(ctx.xummData[0]);
+
+    ctx.state[1]({ state: 'signed', response: payload_meta?.data.data });
+    ctx.signed[1](true);
+  };
+
+  private handlePayload = async () => {
+    if (!ctx.xummData[0]) return;
+    let data = ctx.xummData[0];
+    let jwt = await xumm.init(data);
+
+    data.jwt = jwt ? jwt : undefined;
+    data.payload = { txjson: data.request };
+
+    const payload_data = await xumm.payload(data);
+    data.uuid = payload_data ? payload_data.data.uuid : undefined;
+    const payload_meta = await xumm.getMetadata(data);
+    ctx.meta[1](payload_meta?.data.data);
+
+    let qr = {
+      url: payload_data ? payload_data.data.next.always : undefined,
+      qrcode: payload_data ? payload_data.data.refs.qr_png : undefined,
+      websocket: payload_data ? payload_data.data.refs.websocket_status : undefined,
+      uuid: payload_data ? payload_data.data.uuid : undefined,
+    };
+
+    ctx.qr[1](qr);
+  };
+
+  private onDemand = async (ctx: IStoreContextProps) => {
+    if (!ctx.xummData[0]) return;
+    let data = ctx.xummData[0];
+    let jwt = await xumm.init(data);
+
+    data.jwt = jwt ? jwt : undefined;
+    data.payload = { txjson: data.request };
+
+    const payload_data = await xumm.payload(data);
+    data.uuid = payload_data ? payload_data.data.uuid : undefined;
+    console.log('this is the payload data... ', data);
+
+    const payload_meta = await xumm.getMetadata(data);
+    ctx.meta[1](payload_meta?.data.data);
+
+    let qr = {
+      url: payload_data ? payload_data.data.next.always : undefined,
+      qrcode: payload_data ? payload_data.data.refs.qr_png : undefined,
+      websocket: payload_data ? payload_data.data.refs.websocket_status : undefined,
+      uuid: payload_data ? payload_data.data.uuid : undefined,
+    };
+
+    ctx.qr[1](qr);
+    ctx.xummData[1](data);
+    return qr;
+  };
 }

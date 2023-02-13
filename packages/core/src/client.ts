@@ -1,7 +1,6 @@
 import { Xumm } from 'xumm';
 import type { Logger } from './logger';
 import { defaultLogger } from './logger';
-import xumm from 'xumm';
 
 import { PayloadCache } from './cache';
 
@@ -33,13 +32,13 @@ export const defaultOptions: DefaultOptions = {
 };
 
 export class Client {
-  private cache: PayloadCache;
-  private logger: Logger;
+  public cache: PayloadCache;
+  public logger: Logger;
   private mountCount: number = 0;
-  private xumm: Xumm;
+  public xumm: Xumm;
   private key: string;
   private secret?: string;
-  private defaultOptions: DefaultOptions;
+  public defaultOptions: DefaultOptions;
 
   constructor({ key, secret, config = {} }: ClientOpts) {
     this.defaultOptions = config.defaultOptions || defaultOptions;
