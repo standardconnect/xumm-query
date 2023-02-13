@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="https://github.com/standardconnect/xumm-query/blob/main/media/xumm-query.png" width="128" alt="" />
+  <img src="https://github.com/standardconnect/xumm-query/blob/main/media/query-logo.png" width="128" alt="" />
 </div>
 
-<h2 align="center">xumm-query</h2>
+<h1 align="center">xumm-query</h1>
 
 <p align="center">
 A query-style tool for making and handling asynchronous XUMM payloads
