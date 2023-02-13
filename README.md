@@ -1,3 +1,5 @@
+&nbsp;
+
 <div align="center">
   <img src="https://github.com/standardconnect/xumm-query/blob/main/media/query-logo.png" width="128" alt="" />
 </div>

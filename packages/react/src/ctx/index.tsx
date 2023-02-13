@@ -41,13 +41,6 @@ const XummClientProvider: React.FC<ClientContextProps> = (props) => {
   const key = props.key;
   const [client, _setClient] = useState<Client>(new Client({ key }));
 
-  /*   useEffect(() => {
-    setClient(new Client({ key }));
-    return () => {
-      if (client) client.unmount();
-    };
-  }, [client]); */
-
   return (
     <XummContextSharing.Provider value={!props.context && props.contextSharing}>
       <XummClientContext.Provider value={client}>{props.children}</XummClientContext.Provider>
